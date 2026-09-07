@@ -7,7 +7,6 @@ function getEmbedUrl(type, sourceUrl) {
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
     const match = sourceUrl.match(regExp);
     const videoId = (match && match[2].length === 11) ? match[2] : null;
-
     if (!videoId) return sourceUrl;
     return `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3`;
   } 
@@ -15,7 +14,6 @@ function getEmbedUrl(type, sourceUrl) {
   if (type === 'vimeo') {
     const match = sourceUrl.match(/vimeo\.com\/(?:.*\/)?([0-9]+)/);
     const videoId = match ? match[1] : null;
-
     if (!videoId) return sourceUrl;
     return `https://player.vimeo.com/video/${videoId}?autoplay=1&dnt=1&title=0&byline=0&portrait=0`;
   }
@@ -25,7 +23,6 @@ function getEmbedUrl(type, sourceUrl) {
 
 async function loadClassroomLibrary() {
   const sidebar = document.getElementById('sidebar');
-
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
@@ -33,7 +30,6 @@ async function loadClassroomLibrary() {
     return;
   }
 
-  // Fetch approved videos belonging to logged-in teacher
   const { data: videos, error } = await supabase
     .from('videos')
     .select('*, folders(id, name)')
@@ -43,7 +39,7 @@ async function loadClassroomLibrary() {
 
   if (error) {
     console.error('Error fetching library:', error);
-    sidebar.innerHTML = `<p style="color:red; padding:10px;">Error: ${error.message}</p>`;
+    sidebar.innerHTML = `<p style="color:red; padding:10px;">Error loading videos: ${error.message}</p>`;
     return;
   }
 
@@ -55,11 +51,10 @@ function renderSidebar(videos) {
   const sidebar = document.getElementById('sidebar');
 
   if (!videos || videos.length === 0) {
-    sidebar.innerHTML = '<p style="padding:10px; color:#aaa;">No approved videos found in your library yet.</p>';
+    sidebar.innerHTML = '<p style="padding:10px; color:#aaa;">No approved videos in your library yet.</p>';
     return;
   }
 
-  // Group videos by folder
   const grouped = {};
   videos.forEach(video => {
     const folderName = video.folders ? video.folders.name : 'Uncategorized';
@@ -73,7 +68,7 @@ function renderSidebar(videos) {
       <div class="folder-group">
         <div class="folder-title">📁 ${folderName}</div>
         ${videoList.map(v => `
-          <button class="video-btn" onclick="playVideo('${v.id}')" id="btn-${v.id}">
+          <button type="button" class="video-btn" onclick="playVideo('${v.id}')" id="btn-${v.id}">
             ▶ ${v.title}
           </button>
         `).join('')}
@@ -88,7 +83,6 @@ function playVideo(videoId) {
   const video = currentVideos.find(v => v.id === videoId);
   if (!video) return;
 
-  // Highlight active button
   document.querySelectorAll('.video-btn').forEach(el => el.classList.remove('active'));
   const activeBtn = document.getElementById(`btn-${videoId}`);
   if (activeBtn) activeBtn.classList.add('active');
