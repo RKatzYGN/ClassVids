@@ -36,41 +36,47 @@
   </div>
 
   <script src="js/supabaseClient.js"></script>
-  <script>
-    // Automatically redirect if user is already logged in
-    window.onload = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) redirectUser(session.user.id);
-    };
+<script>
+  // Automatically redirect if user is already logged in
+  window.onload = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) redirectUser(session.user.id);
+  };
 
-    async function handleLogin() {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const errorDiv = document.getElementById('errorMessage');
+  async function handleLogin() {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const errorDiv = document.getElementById('errorMessage');
 
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
-      if (error) {
-        errorDiv.textContent = error.message;
-      } else {
-        redirectUser(data.user.id);
-      }
+    if (error) {
+      errorDiv.textContent = error.message;
+    } else {
+      redirectUser(data.user.id);
+    }
+  }
+
+  // Direct user to Teacher or Admin portal based on their role
+  async function redirectUser(userId) {
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', userId)
+      .single();
+
+    if (error) {
+      console.error('Error fetching profile:', error);
+    } else {
+      console.log('Profile loaded:', profile);
     }
 
-    // Direct user to Teacher or Admin portal based on their role
-    async function redirectUser(userId) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', userId)
-        .single();
-
-      if (profile && profile.role === 'admin') {
-        window.location.href = 'admin.html';
-      } else {
-        window.location.href = 'teacher.html';
-      }
+    if (profile && profile.role === 'admin') {
+      window.location.href = 'admin.html';
+    } else {
+      window.location.href = 'teacher.html';
     }
-  </script>
+  }
+</script>
 </body>
 </html>
