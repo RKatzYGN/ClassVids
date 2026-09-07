@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>School Video Portal - Login</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+    .login-card { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 350px; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; font-weight: bold; }
+    input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+    button { width: 100%; padding: 10px; background: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1em; }
+    button:hover { background: #0052a3; }
+    .error { color: #dc3545; font-size: 0.9em; margin-top: 10px; text-align: center; }
+  </style>
+</head>
+<body>
+
+  <div class="login-card">
+    <h2>Portal Login</h2>
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input type="email" id="email" placeholder="teacher@school.edu">
+    </div>
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="••••••••">
+    </div>
+    <button onclick="handleLogin()">Sign In</button>
+    <div id="errorMessage" class="error"></div>
+  </div>
+
+  <script src="js/supabaseClient.js"></script>
+  <script>
+    // Automatically redirect if user is already logged in
+    window.onload = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) redirectUser(session.user.id);
+    };
+
+    async function handleLogin() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const errorDiv = document.getElementById('errorMessage');
+
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        errorDiv.textContent = error.message;
+      } else {
+        redirectUser(data.user.id);
+      }
+    }
+
+    // Direct user to Teacher or Admin portal based on their role
+    async function redirectUser(userId) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', userId)
+        .single();
+
+      if (profile && profile.role === 'admin') {
+        window.location.href = 'admin.html';
+      } else {
+        window.location.href = 'teacher.html';
+      }
+    }
+  </script>
+</body>
+</html>
