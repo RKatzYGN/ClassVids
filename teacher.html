@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Teacher Portal - Video Management</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; }
+    .card { background: white; padding: 20px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; font-weight: bold; }
+    input, select, button { width: 100%; padding: 8px; box-sizing: border-box; }
+    button { background: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px; }
+    button:hover { background: #0052a3; }
+    .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 0.85em; font-weight: bold; }
+    .status-pending { background: #ffeeba; color: #856404; }
+    .status-approved { background: #d4edda; color: #155724; }
+    .status-rejected { background: #f8d7da; color: #721c24; }
+    .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; }
+    .video-card { border: 1px solid #ddd; padding: 15px; border-radius: 6px; background: #fff; }
+  </style>
+</head>
+<body>
+
+  <h1>Teacher Portal</h1>
+
+  <div class="card">
+    <h2>Create New Folder</h2>
+    <div class="form-group">
+      <input type="text" id="folderName" placeholder="e.g., Period 1 Physics, Unit 3 Biology">
+      <button onclick="createFolder()">Add Folder</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Submit Video for Approval</h2>
+    <div class="form-group">
+      <label for="videoTitle">Video Title</label>
+      <input type="text" id="videoTitle" placeholder="e.g., Intro to Photosynthesis">
+    </div>
+
+    <div class="form-group">
+      <label for="folderSelect">Assign to Folder</label>
+      <select id="folderSelect"><option value="">-- No Folder (Root) --</option></select>
+    </div>
+
+    <div class="form-group">
+      <label for="videoType">Source Type</label>
+      <select id="videoType" onchange="toggleInputType()">
+        <option value="youtube">YouTube URL</option>
+        <option value="vimeo">Vimeo URL</option>
+        <option value="file">Upload Direct Video File (.mp4)</option>
+      </select>
+    </div>
+
+    <div class="form-group" id="urlInputGroup">
+      <label for="videoUrl">Video URL</label>
+      <input type="url" id="videoUrl" placeholder="https://www.youtube.com/watch?v=...">
+    </div>
+
+    <div class="form-group" id="fileInputGroup" style="display: none;">
+      <label for="videoFileInput">Choose Video File</label>
+      <input type="file" id="videoFileInput" accept="video/mp4,video/mkv,video/mov">
+    </div>
+
+    <button onclick="submitVideo()">Submit Video to Admin</button>
+  </div>
+
+  <div class="card">
+    <h2>My Uploaded Videos</h2>
+    <div id="videoList" class="video-grid">Loading videos...</div>
+  </div>
+
+  <script src="js/supabaseClient.js"></script>
+  <script src="js/teacher.js"></script>
+</body>
+</html>
